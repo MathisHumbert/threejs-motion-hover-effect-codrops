@@ -3,8 +3,8 @@ import { gsap } from 'gsap';
 
 import EffectShell from './EffectShell';
 
-import vertexShader from '../gls/rgb-shift-vertex.glsl';
-import fragmentShader from '../gls/rgb-shift-fragment.glsl';
+import vertexShader from '../../gls/rgb-shift-vertex.glsl';
+import fragmentShader from '../../gls/rgb-shift-fragment.glsl';
 
 export default class Effect extends EffectShell {
   constructor(contianer = document.body, itemsWrapper = null, options = {}) {

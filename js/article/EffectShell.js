@@ -9,7 +9,6 @@ export default class EffectShell {
 
     this.setup();
     this.initEffectShell().then(() => {
-      console.log('load finished');
       this.isLoaded = true;
 
       if (this.isMouseOver) this.onMouseOver(this.tempItemIndex);
