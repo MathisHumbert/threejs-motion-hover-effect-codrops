@@ -1,3 +1,6 @@
 import Effect from './Effect';
 
-new Effect();
+const container = document.body;
+const itemsWrapper = document.querySelector('.grid');
+
+new Effect(container, itemsWrapper);

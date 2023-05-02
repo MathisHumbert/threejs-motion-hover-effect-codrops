@@ -8,19 +8,31 @@
     <title>Vite App</title>
   </head>
   <body>
-    <div id="app">
-      <a class="link" href="#">
-        <h1>Montmartre</h1>
-        <img src="img/demo1/img1.jpg" alt="Some image" />
-      </a>
-      <a class="link" href="#">
-        <h1>Bir-Hakem</h1>
-        <img src="img/demo1/img2.jpg" alt="Some image" />
-      </a>
-      <a class="link" href="#">
-        <h1>République</h1>
-        <img src="img/demo1/img3.jpg" alt="Some image" />
-      </a>
+    <div class="app">
+      <div class="grid">
+        <div class="grid__items">
+          <a class="grid__items__link" target="_blank">
+            <h1>Montmartre</h1>
+            <p>cemetery, paris</p>
+            <img src="img/demo1/img1.jpg" alt="img1" />
+          </a>
+          <div class="grid__items__divider"></div>
+          <a class="grid__items__link" target="_blank">
+            <h1>Bir-Hakem</h1>
+            <p>bridge, paris</p>
+            <img src="img/demo1/img2.jpg" alt="img2" />
+          </a>
+        </div>
+        <div class="grid__items">
+          <div class="grid__items__divider"></div>
+          <a class="grid__items__link" target="_blank">
+            <h1>République</h1>
+            <p>people, paris</p>
+            <img src="img/demo1/img3.jpg" alt="img3" />
+          </a>
+          <div class="grid__items__divider"></div>
+        </div>
+      </div>
     </div>
     <script type="module" src="/js/Math.js"></script>
     <script type="module" src="/js/main.js"></script>

@@ -5,7 +5,7 @@ export default class EffectShell {
     this.container = container;
     this.itemsWrapper = itemsWrapper;
 
-    // if (!this.container || !this.itemsWrapper) return;
+    if (!this.container || !this.itemsWrapper) return;
 
     this.setup();
     this.initEffectShell().then(() => {
@@ -87,12 +87,6 @@ export default class EffectShell {
         this._onMouseOver.bind(this, index),
         false
       );
-
-      item.element.addEventListener(
-        'mouseleave',
-        this._onMouseLeave.bind(this),
-        false
-      );
     });
 
     this.container.addEventListener(
@@ -101,11 +95,11 @@ export default class EffectShell {
       false
     );
 
-    // this.itemsWrapper.addEventListener(
-    //   'mouseleave',
-    //   this._onMouseLeave.bind(this),
-    //   false
-    // );
+    this.itemsWrapper.addEventListener(
+      'mouseleave',
+      this._onMouseLeave.bind(this),
+      false
+    );
   }
 
   _onMouseLeave(event) {
@@ -153,8 +147,7 @@ export default class EffectShell {
   }
 
   get itemsElements() {
-    // const items = [...this.itemsWrapper.querySelectorAll('.link')];
-    const items = [...document.querySelectorAll('.link')];
+    const items = [...this.itemsWrapper.querySelectorAll('.grid__items__link')];
 
     return items.map((item, index) => ({
       element: item,

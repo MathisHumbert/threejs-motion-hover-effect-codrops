@@ -3,11 +3,14 @@ import { gsap } from 'gsap';
 
 import EffectShell from './EffectShell';
 
+import vertexShader from '../gls/rgb-shift-vertex.glsl';
+import fragmentShader from '../gls/rgb-shift-fragment.glsl';
+
 export default class Effect extends EffectShell {
   constructor(contianer = document.body, itemsWrapper = null, options = {}) {
     super(contianer, itemsWrapper);
 
-    // if (!this.container || !this.itemsWrapper) return;
+    if (!this.container || !this.itemsWrapper) return;
 
     options.strength = options.strength || 0.25;
     this.options = options;
@@ -36,35 +39,9 @@ export default class Effect extends EffectShell {
     this.material = new THREE.ShaderMaterial({
       transparent: true,
       uniforms: this.uniforms,
-      vertexShader: `
-      uniform vec2 uOffset;
-
-      varying vec2 vUv;
-
-      #define PI 3.1415926535897932384626433832795
-
-      vec3 deformationCurve(vec3 position, vec2 uv, vec2 offset) {
-        position.x = position.x + (sin(uv.y * PI) * offset.x);
-        position.y = position.y + (sin(uv.x * PI) * offset.y);
-        return position;
-      }
-
-      void main(){
-        vec3 newPosition = deformationCurve(position, uv, uOffset);
-
-        vUv = uv;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
-      }
-      `,
-      fragmentShader: `
-      uniform sampler2D uTexture;
-      uniform float uAlpha;
-      varying vec2 vUv;
-
-      void main(){
-        vec3 color = texture2D(uTexture, vUv).rgb;
-        gl_FragColor = vec4(color, uAlpha);
-      }`,
+      defines: { PI: 3.1415926535897932384626433832795 },
+      vertexShader: vertexShader,
+      fragmentShader: fragmentShader,
     });
 
     this.plane = new THREE.Mesh(this.geometry, this.material);
