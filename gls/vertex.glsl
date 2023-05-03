@@ -3,8 +3,8 @@ uniform vec2 uOffset;
 varying vec2 vUv;
 
 vec3 deformationCurve(vec3 position, vec2 uv, vec2 offset) {
-  position.x = position.x + (sin(uv.y * PI) * offset.x);
-  position.y = position.y + (sin(uv.x * PI) * offset.y);
+  position.x += (sin(uv.y * PI) * offset.x);
+  position.y += (sin(uv.x * PI) * offset.y);
   return position;
 }
 

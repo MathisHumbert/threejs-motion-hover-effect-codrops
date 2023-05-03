@@ -3,17 +3,27 @@ import { gsap } from 'gsap';
 
 import EffectShell from './EffectShell';
 
-import vertexShader from '../../gls/rgb-shift-vertex.glsl';
-import fragmentShader from '../../gls/rgb-shift-fragment.glsl';
+import vertex from '../../gls/vertex.glsl';
+import rgbShiftFragment from '../../gls/rgb-shift-fragment.glsl';
+import stretchFragmentS from '../../gls/stretch-fragment.glsl';
+import trailFragment from '../../gls/trail-fragment.glsl';
 
 export default class Effect extends EffectShell {
-  constructor(contianer = document.body, itemsWrapper = null, options = {}) {
+  constructor({
+    contianer = document.body,
+    itemsWrapper = null,
+    options = {},
+    isTrail,
+  }) {
     super(contianer, itemsWrapper);
 
     if (!this.container || !this.itemsWrapper) return;
 
     options.strength = options.strength || 0.25;
+    options.amount = options.amount || 5;
+    options.duration = options.duration || 0.5;
     this.options = options;
+    this.isTrail = isTrail;
 
     this.init();
   }
@@ -37,15 +47,27 @@ export default class Effect extends EffectShell {
     };
 
     this.material = new THREE.ShaderMaterial({
+      // wireframe: true,
       transparent: true,
       uniforms: this.uniforms,
       defines: { PI: 3.1415926535897932384626433832795 },
-      vertexShader: vertexShader,
-      fragmentShader: fragmentShader,
+      vertexShader: vertex,
+      fragmentShader: trailFragment,
     });
 
     this.plane = new THREE.Mesh(this.geometry, this.material);
-    this.scene.add(this.plane);
+
+    if (this.isTrail) {
+      this.trails = [];
+
+      for (let i = 0; i < this.options.amount; i++) {
+        let plane = this.plane.clone();
+        this.trails.push(plane);
+        this.scene.add(plane);
+      }
+    } else {
+      this.scene.add(this.plane);
+    }
   }
 
   onMouseEnter() {
@@ -84,15 +106,44 @@ export default class Effect extends EffectShell {
       this.viewSize.height / 2
     );
 
-    this.position = new THREE.Vector3(x, y, 0);
+    if (this.isTrail) {
+      gsap.to(this.position, {
+        x: x,
+        y: y,
+        duration: 1,
+        ease: 'power4',
+        onUpdate: () => {
+          let offset = this.position
+            .clone()
+            .sub(new THREE.Vector3(x, y, 0))
+            .multiplyScalar(-this.options.strength);
+          this.uniforms.uOffset.value = offset;
+        },
+      });
 
-    gsap.to(this.plane.position, {
-      x: x,
-      y: y,
-      duration: 1,
-      ease: 'power4',
-      onUpdate: this.onPositionUpdate.bind(this),
-    });
+      this.trails.forEach((trail, index) => {
+        const duration =
+          this.options.duration * this.options.amount -
+          this.options.duration * index;
+
+        gsap.to(trail.position, {
+          x: x,
+          y: y,
+          duration: duration,
+          ease: 'power4',
+        });
+      });
+    } else {
+      this.position = new THREE.Vector3(x, y, 0);
+
+      gsap.to(this.plane.position, {
+        x: x,
+        y: y,
+        duration: 1,
+        ease: 'power4',
+        onUpdate: this.onPositionUpdate.bind(this),
+      });
+    }
   }
 
   onPositionUpdate() {
@@ -113,6 +164,12 @@ export default class Effect extends EffectShell {
     let imageRatio =
       this.currentItem.img.naturalWidth / this.currentItem.img.naturalHeight;
 
-    this.plane.scale.set(imageRatio, 1, 1);
+    if (this.isTrail) {
+      this.trails.forEach((trail) => {
+        trail.scale.set(imageRatio, 1, 1);
+      });
+    } else {
+      this.plane.scale.set(imageRatio, 1, 1);
+    }
   }
 }

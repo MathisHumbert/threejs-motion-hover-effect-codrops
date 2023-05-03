@@ -1,12 +1,18 @@
 import * as THREE from 'three';
 import { gsap } from 'gsap';
+
+import vertex from '../gls/vertex.glsl';
+import fragment from '../gls/rgb-shift-fragment.glsl';
+
 export default class Plane {
   constructor(scene) {
     this.scene = scene.scene;
+    this.width = scene.width;
+    this.height = scene.height;
     this.textures = scene.textures;
-    this.viewSize = scene.viewSize;
 
     this.isHover = false;
+    this.currentIndex = 0;
     this.initPlane();
   }
 
@@ -14,54 +20,71 @@ export default class Plane {
     this.geometry = new THREE.PlaneGeometry(1, 1, 10, 10);
     this.material = new THREE.ShaderMaterial({
       transparent: true,
-      // wireframe: true,
+      defines: { PI: 3.1415926535897932384626433832795 },
       uniforms: {
         uTexture: { value: null },
+        uAlpha: { value: 0 },
+        uOffset: { value: new THREE.Vector2(1, 1) },
       },
-      vertexShader: `
-      varying vec2 vUv;
-
-      void main(){
-        vUv = uv;
-
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-      }
-      `,
-      fragmentShader: `
-      uniform sampler2D uTexture;
-      varying vec2 vUv;
-
-      void main(){
-      vec4 texture = texture2D(uTexture, vUv);
-
-      gl_FragColor = vec4(0., 0., 0., 1.);
-      // gl_FragColor = texture;
-      }`,
+      vertexShader: vertex,
+      fragmentShader: fragment,
     });
 
     this.mesh = new THREE.Mesh(this.geometry, this.material);
     this.scene.add(this.mesh);
   }
 
+  onWindowResize({ width, height }) {
+    this.width = width;
+    this.height = height;
+  }
+
   onMouseMove({ x, y }) {
-    // do the offset
-    gsap.to(this.mesh.position, { x, y, duration: 1, ease: 'power4' });
+    this.position = new THREE.Vector3(x, y, 0);
+
+    gsap.to(this.mesh.position, {
+      x: x,
+      y: y,
+      duration: 1,
+      ease: 'power4',
+      onUpdate: this.onPositionUpdate.bind(this),
+    });
   }
 
   onMouseEnter(index) {
+    if (this.currentIndex === index && this.isHover) return;
+
+    this.currentIndex = index;
     this.isHover = true;
+
+    gsap.to(this.material.uniforms.uAlpha, { value: 1, ease: 'power4' });
+
     const texture = this.textures[index];
 
-    console.log(this.viewSize);
+    const scale =
+      this.width / texture.image.naturalWidth +
+      this.height / texture.image.naturalHeight;
+
     this.mesh.scale.set(
-      texture.image.naturalWidth / texture.image.naturalHeight,
-      1,
+      texture.image.naturalWidth * scale * 0.15,
+      texture.image.naturalHeight * scale * 0.15,
       1
     );
+
     this.material.uniforms.uTexture.value = texture;
   }
 
   onMouseLeave() {
     this.isHover = false;
+
+    gsap.to(this.material.uniforms.uAlpha, { value: 0, ease: 'power4' });
+  }
+
+  onPositionUpdate() {
+    let offset = this.mesh.position
+      .clone()
+      .sub(this.position)
+      .multiplyScalar(-0.001);
+    this.material.uniforms.uOffset.value = offset;
   }
 }

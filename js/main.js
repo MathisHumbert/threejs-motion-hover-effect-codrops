@@ -1,10 +1,6 @@
-// import Effect from './article/Effect';
+import Effect from './article/Effect';
 
-// const container = document.body;
-// const itemsWrapper = document.querySelector('.grid');
+const container = document.body;
+const itemsWrapper = document.querySelector('.grid');
 
-// new Effect(container, itemsWrapper);
-
-import Scene from './Scene';
-
-new Scene(document.body);
+new Effect({ container, itemsWrapper, isTrail: true });

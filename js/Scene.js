@@ -3,14 +3,15 @@ import * as THREE from 'three';
 import Plane from './Plane';
 
 export default class Scene {
-  constructor(container) {
+  constructor(container, wrapper) {
     this.container = container;
+    this.wrapper = wrapper;
     this.width = container.offsetWidth;
     this.height = container.offsetHeight;
     this.aspectRatio = this.width / this.height;
     this.mouse = { x: 0, y: 0 };
 
-    this.links = [...document.querySelectorAll('.grid__items__link')];
+    this.links = [...this.wrapper.querySelectorAll('.grid__items__link')];
 
     this.load();
   }
@@ -43,26 +44,18 @@ export default class Scene {
   initThree() {
     this.scene = new THREE.Scene();
 
+    this.perspective = 800;
+    this.fov =
+      2 * Math.atan(this.height / 2 / this.perspective) * (180 / Math.PI);
+
     this.camera = new THREE.PerspectiveCamera(
-      40,
+      this.fov,
       this.width / this.height,
       0.1,
       1000
     );
-    this.camera.position.z = 3;
 
-    // this.perspective = 800;
-    // const fov =
-    //   2 * Math.atan(this.height / 2 / this.perspective) * (180 / Math.PI);
-
-    // this.camera = new THREE.PerspectiveCamera(
-    //   fov,
-    //   this.width / this.height,
-    //   0.1,
-    //   1000
-    // );
-
-    // this.camera.position.z = this.perspective;
+    this.camera.position.z = this.perspective;
 
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     this.renderer.setSize(this.width, this.height);
@@ -82,10 +75,10 @@ export default class Scene {
     window.addEventListener('resize', this.onWindowResize.bind(this));
 
     window.addEventListener('mousemove', (e) => this.onMouseMove(e));
+    this.wrapper.addEventListener('mouseleave', () => this.onMouseLeave());
 
     this.links.forEach((link, index) => {
       link.addEventListener('mouseenter', (e) => this.onMouseEnter(e, index));
-      link.addEventListener('mouseleave', (e) => this.onMouseLeave(e, index));
     });
   }
 
@@ -93,7 +86,9 @@ export default class Scene {
     this.plane.onMouseEnter(index);
   }
 
-  onMouseLeave(ev, index) {}
+  onMouseLeave() {
+    this.plane.onMouseLeave();
+  }
 
   onMouseMove(e) {
     this.mouse.x = (e.clientX / this.width) * 2 - 1;
@@ -121,12 +116,16 @@ export default class Scene {
     this.aspectRatio = this.width / this.height;
 
     this.camera.aspect = this.aspectRatio;
+    this.camera.fov =
+      2 * Math.atan(this.height / 2 / this.perspective) * (180 / Math.PI);
     this.camera.updateProjectionMatrix();
 
     this.renderer.setSize(this.width, this.height);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
     this.getViewSize();
+
+    this.plane.onWindowResize({ width: this.width, height: this.height });
   }
 
   getViewSize() {
