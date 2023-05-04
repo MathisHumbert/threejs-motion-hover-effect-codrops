@@ -10,6 +10,7 @@ export default class EffectShell {
     this.setup();
     this.initEffectShell().then(() => {
       this.isLoaded = true;
+      this.container.classList.remove('loading');
 
       if (this.isMouseOver) this.onMouseOver(this.tempItemIndex);
 
@@ -21,16 +22,13 @@ export default class EffectShell {
   setup() {
     window.addEventListener('resize', this.onWindowResize.bind(this), false);
 
-    // renderer
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     this.renderer.setSize(this.viewport.width, this.viewport.height);
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.container.appendChild(this.renderer.domElement);
 
-    // scene
     this.scene = new THREE.Scene();
 
-    // camera
     this.camera = new THREE.PerspectiveCamera(
       40,
       this.viewport.aspectRatio,
@@ -39,20 +37,12 @@ export default class EffectShell {
     );
     this.camera.position.set(0, 0, 3);
 
-    //mouse
     this.mouse = new THREE.Vector2();
 
-    // time
-    // this.timeSpeed = 2;
-    // this.time = 0;
-    // this.clock = new THREE.Clock();
-
-    // animation loop
     this.renderer.setAnimationLoop(this.render.bind(this));
   }
 
   render() {
-    // this.time += this.clock.getDelta() * this.timeSpeed;
     this.renderer.render(this.scene, this.camera);
   }
 

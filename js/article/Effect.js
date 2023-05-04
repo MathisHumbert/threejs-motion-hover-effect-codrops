@@ -4,9 +4,6 @@ import { gsap } from 'gsap';
 import EffectShell from './EffectShell';
 
 import vertex from '../../gls/vertex.glsl';
-import rgbShiftFragment from '../../gls/rgb-shift-fragment.glsl';
-import stretchFragmentS from '../../gls/stretch-fragment.glsl';
-import trailFragment from '../../gls/trail-fragment.glsl';
 
 export default class Effect extends EffectShell {
   constructor({
@@ -14,6 +11,7 @@ export default class Effect extends EffectShell {
     itemsWrapper = null,
     options = {},
     isTrail,
+    fragment,
   }) {
     super(contianer, itemsWrapper);
 
@@ -24,6 +22,7 @@ export default class Effect extends EffectShell {
     options.duration = options.duration || 0.5;
     this.options = options;
     this.isTrail = isTrail;
+    this.fragment = fragment;
 
     this.init();
   }
@@ -47,12 +46,11 @@ export default class Effect extends EffectShell {
     };
 
     this.material = new THREE.ShaderMaterial({
-      // wireframe: true,
       transparent: true,
       uniforms: this.uniforms,
       defines: { PI: 3.1415926535897932384626433832795 },
       vertexShader: vertex,
-      fragmentShader: trailFragment,
+      fragmentShader: this.fragment,
     });
 
     this.plane = new THREE.Mesh(this.geometry, this.material);

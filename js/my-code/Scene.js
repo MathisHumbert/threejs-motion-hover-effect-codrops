@@ -3,9 +3,12 @@ import * as THREE from 'three';
 import Plane from './Plane';
 
 export default class Scene {
-  constructor(container, wrapper) {
+  constructor({ container, itemsWrapper, isTrail, fragment }) {
     this.container = container;
-    this.wrapper = wrapper;
+    this.wrapper = itemsWrapper;
+    this.isTrail = isTrail;
+    this.fragment = fragment;
+
     this.width = container.offsetWidth;
     this.height = container.offsetHeight;
     this.aspectRatio = this.width / this.height;
@@ -31,6 +34,7 @@ export default class Scene {
       })
     ).then((data) => {
       this.textures = data;
+      this.container.classList.remove('loading');
       this.init();
     });
   }
